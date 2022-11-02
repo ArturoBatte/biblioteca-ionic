@@ -13,6 +13,7 @@ export class LibrosPage implements OnInit {
 
    public listaLibros: Libro[]=[]; 
    public cargandoLibros: boolean = false;
+   public modalVisible: boolean = false;
 
   constructor(
     private servicioLibros: LibrosService,
@@ -32,7 +33,7 @@ export class LibrosPage implements OnInit {
       },
       error: (e) => {
         console.error('Error al consultar libros',e);
-        this.cargandoLibros = false;
+        this.cargandoLibros =false;
         this.servicioToast.create({
           header: 'Error al Cargar libros',
           message: e.message,
@@ -43,5 +44,7 @@ export class LibrosPage implements OnInit {
       }
     });
   }
-
+  public nuevo(){
+    this.modalVisible = true;
+  }
 }
