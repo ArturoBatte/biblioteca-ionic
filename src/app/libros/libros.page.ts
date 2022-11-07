@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { IonRefresher, ToastController } from '@ionic/angular';
+import { AlertController, IonRefresher, ToastController } from '@ionic/angular';
 import { Libro } from '../interfaces/libro.interface';
 import { LibrosService } from '../servicios/libros.service';
 import { FormularioLibroComponent } from './formulario-libro/formulario-libro.component';
@@ -24,8 +24,8 @@ export class LibrosPage implements OnInit {
   constructor(
     private servicioLibros: LibrosService,
     private servicioToast: ToastController,
+    private servicioAlert: AlertController
   ) { }
-
   ngOnInit() {
     this.cargarLibros();
   }
@@ -73,4 +73,45 @@ export class LibrosPage implements OnInit {
     }
   }
 
+  public confirmarEliminacion(libro: Libro) {
+    this.servicioAlert.create({
+      header: 'Confirmar eliminación',
+      subHeader: '¿Realmente desea eliminar el libro?',
+      message: `${libro.id} - ${libro.titulo} (${libro.autor})`,
+      buttons: [
+        {
+          text: 'Cancelar'
+        },
+        {
+          text: 'Eliminar',
+          handler: () => this.eliminar(libro)
+        }
+      ]
+    }).then(a => a.present());
+  }
+
+  private eliminar(libro: Libro) {
+    this.servicioLibros.delete(libro).subscribe({
+      next: () => {
+        this.cargarLibros();
+        this.servicioToast.create({
+          header: 'Éxito',
+          message: 'El libro se eliminó correctamente',
+          duration: 2000,
+          position: 'bottom',
+          color: 'success'
+        }).then(t => t.present());
+      },
+      error: (e) => {
+        console.error('Error al eliminar libro', e);
+        this.servicioToast.create({
+          header: 'Error al eliminar',
+          message: e.message,
+          duration: 3000,
+          position: 'bottom',
+          color: 'danger'
+        }).then(toast => toast.present());
+      }
+    });
+  }
 }
